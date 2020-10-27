@@ -291,6 +291,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   jumpForce: 15
+  dashForce: 5
+  numOfClicks: 0
 --- !u!1 &264862791
 GameObject:
   m_ObjectHideFlags: 0
