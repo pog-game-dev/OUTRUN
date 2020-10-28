@@ -49,11 +49,17 @@ public class Player : Character
     private float lastClickedTime = 0f;
     private float maxComboDelay = 0.5f;
 
+    private float ammo;
+    [SerializeField] private float reloadTime;
+    private float reloadTimeCounter;
+
 
     // Start is called before the first frame update
-    
+
     protected override void Start()
     {
+        reloadTimeCounter = reloadTime;
+        ammo = 3;
         invincible = false;
         health = 3;
         currentState = PlayerState.run;
@@ -67,6 +73,7 @@ public class Player : Character
     {
 
         health = Mathf.Clamp(health, 0, 3);
+        ammo = Mathf.Clamp(ammo, 0, 3);
 
         //Debug
         //Debug.Log("currentState: " + currentState);
@@ -78,6 +85,20 @@ public class Player : Character
             numOfClicks = 0;
             currentAttack = AttackState.none;
         }
+        //Reload timer
+        if(ammo < 3)
+        {
+            if(reloadTimeCounter > 0)
+            {
+                reloadTimeCounter -= Time.deltaTime;
+            }
+            else
+            {
+                ammo++;
+                reloadTimeCounter = reloadTime;
+            }
+        }
+
 
         if(currentState != PlayerState.run)
         {
@@ -232,15 +253,6 @@ public class Player : Character
     protected override IEnumerator hitCo()
     {
 
-        if (facingRight)
-        {
-            myRigidbody.MovePosition(new Vector2(myRigidbody.position.x - knockback, myRigidbody.position.y));
-        }
-        else if (!facingRight)
-        {
-            myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + knockback, myRigidbody.position.y));
-        }
-
         invincible = true;
         currentState = PlayerState.damaged;
         anim.SetTrigger("hit");
@@ -332,11 +344,14 @@ public class Player : Character
 
     void shoot()
     {
-        if (Input.GetButtonDown("Fire2"))
+
+        if (Input.GetButtonDown("Fire2") && ammo > 0)
         {
             isShooting = true;
             currentState = PlayerState.attack;
+            ammo--;
         }
+        
 
     }
     void dash()
@@ -362,4 +377,13 @@ public class Player : Character
         }
     }
 
+    public float getHealth()
+    {
+        return health;
+    }
+
+    public float getAmmo()
+    {
+        return ammo;
+    }
 }

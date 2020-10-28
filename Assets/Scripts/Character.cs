@@ -48,8 +48,10 @@ public abstract class Character : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        float direction = (myRigidbody.position.x - collision.transform.position.x) / Mathf.Abs(myRigidbody.position.x - collision.transform.position.x);
         if (collision.CompareTag("Attack"))
         {
+            myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + direction * knockback, myRigidbody.position.y));
             takeDamage();
         }
     }
