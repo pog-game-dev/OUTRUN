@@ -10,7 +10,9 @@ public enum PlayerState
     attack,
     jump,
     fall,
-    dash
+    dash,
+    damaged,
+    dead
 }
 
 public enum AttackState
@@ -35,10 +37,9 @@ public class Player : Character
     private bool jump;
     private bool isShooting;
     private bool isGrounded;
-    private bool facingRight;
+    private bool invincible;
 
     //stats
-    public float jumpForce;
     public float dashForce;
 
     //components
@@ -53,6 +54,8 @@ public class Player : Character
     
     protected override void Start()
     {
+        invincible = false;
+        health = 3;
         currentState = PlayerState.run;
         currentAttack = AttackState.none;
         base.Start();
@@ -62,18 +65,12 @@ public class Player : Character
     //methods called every frame
     protected override void Update()
     {
-        //movement
-        attack();
-        GetDirection();
-        setJump();
-        dash();
-        shoot();
-        setIsGrounded();
+
+        health = Mathf.Clamp(health, 0, 3);
 
         //Debug
-        Debug.Log("numOfClicks: " + numOfClicks);
-        Debug.Log("currentATtack: " + currentAttack);
-        Debug.Log("currentState: " + currentState);
+        //Debug.Log("currentState: " + currentState);
+        //Debug.Log("health: " + health);
 
         //Combo timer
         if (Time.time - lastClickedTime > maxComboDelay)
@@ -82,40 +79,61 @@ public class Player : Character
             currentAttack = AttackState.none;
         }
 
-
-        //animations
-        if (isRunning && !isAttacking && !isShooting)
-        {
-            anim.SetBool("isRunning", true);
-        }
-        else
+        if(currentState != PlayerState.run)
         {
             anim.SetBool("isRunning", false);
         }
 
-        if (currentState != PlayerState.fall && currentState != PlayerState.jump)
+        if (currentState != PlayerState.dead)
         {
-            if (isAttacking && numOfClicks >= 1 && !anim.GetCurrentAnimatorStateInfo(0).IsName("Attack1") && currentAttack == AttackState.none)
+            //movement
+            attack();
+            GetDirection();
+            setJump();
+            dash();
+            shoot();
+            setIsGrounded();
+
+            //animations
+            if (isRunning && !isAttacking && !isShooting)
             {
-                isAttacking = false;
-                StartCoroutine(Attack1Co());
+                anim.SetBool("isRunning", true);
+            }
+            else
+            {
+                anim.SetBool("isRunning", false);
             }
 
-            else if (isAttacking && numOfClicks >= 2 && !anim.GetCurrentAnimatorStateInfo(0).IsName("Attack2") && currentAttack == AttackState.attack1)
+            if (currentState != PlayerState.fall && currentState != PlayerState.jump)
             {
-                StartCoroutine(Attack2Co());
-            }
+                if (isAttacking && numOfClicks >= 1 && !anim.GetCurrentAnimatorStateInfo(0).IsName("Attack1") && currentAttack == AttackState.none)
+                {
+                    isAttacking = false;
+                    StartCoroutine(Attack1Co());
+                }
+
+                else if (isAttacking && numOfClicks >= 2 && !anim.GetCurrentAnimatorStateInfo(0).IsName("Attack2") && currentAttack == AttackState.attack1)
+                {
+                    StartCoroutine(Attack2Co());
+                }
 
 
-            if (isShooting && !anim.GetCurrentAnimatorStateInfo(0).IsName("Shoot"))
-            {
-                StartCoroutine(ShootCo());
-            }
+                if (isShooting && !anim.GetCurrentAnimatorStateInfo(0).IsName("Shoot"))
+                {
+                    StartCoroutine(ShootCo());
+                }
 
-            if (isDashing && !anim.GetCurrentAnimatorStateInfo(0).IsName("Dash"))
-            {
-                StartCoroutine(DashCo());
+                if (isDashing && !anim.GetCurrentAnimatorStateInfo(0).IsName("Dash"))
+                {
+                    StartCoroutine(DashCo());
+                }
             }
+            base.Update();
+        }
+
+        else if(currentState == PlayerState.dead)
+        {
+            direction = Vector2.zero;
         }
 
 
@@ -136,19 +154,30 @@ public class Player : Character
         base.Update();
     }
 
-    protected override void FixedUpdate()
+    void FixedUpdate()
     {
-
-        base.FixedUpdate();
+        MoveCharacter();
     }
 
-    
+    void MoveCharacter()
+    {
+
+        myRigidbody.velocity = new Vector2(direction.x * speed * Time.deltaTime, myRigidbody.velocity.y);
+        //myRigidbody.velocity += new Vector2(0, myRigidbody.velocity.y);
+
+
+        //myRigidbody.MovePosition(myRigidbody.position + direction * speed * Time.deltaTime);
+
+        //myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + direction.x * speed * Time.deltaTime, myRigidbody.position.y));
+
+
+        //transform.Translate(direction * speed * Time.deltaTime);
+    }
     //animation coroutines
     private IEnumerator Attack1Co()
     {
         currentAttack = AttackState.attack1;
         isAttacking = false;
-        anim.SetBool("isRunning", false);
         anim.SetTrigger("attack1");
         yield return new WaitForSeconds(0.1f);
         currentState = PlayerState.run;
@@ -167,7 +196,6 @@ public class Player : Character
 
     private IEnumerator ShootCo()
     {
-        anim.SetBool("isRunning", false);
         anim.SetTrigger("shoot");
         isShooting = false;
         yield return new WaitForSeconds(0.2f);
@@ -177,12 +205,10 @@ public class Player : Character
     private IEnumerator JumpCo()
     {
         myRigidbody.velocity = Vector2.up * jumpForce;
-        anim.SetBool("isRunning", false);
         anim.SetTrigger("jump");
         jump = false;
         yield return new WaitForSeconds(.3f);
         currentState = PlayerState.fall;
-        
     }
 
     private IEnumerator DashCo()
@@ -195,7 +221,6 @@ public class Player : Character
         {
             myRigidbody.MovePosition(transform.position + Vector3.left * dashForce);
         }
-        anim.SetBool("isRunning", false);
         anim.SetTrigger("dash");
         yield return null;
         isDashing = false;
@@ -204,9 +229,44 @@ public class Player : Character
 
     }
 
+    protected override IEnumerator hitCo()
+    {
+
+        if (facingRight)
+        {
+            myRigidbody.MovePosition(new Vector2(myRigidbody.position.x - knockback, myRigidbody.position.y));
+        }
+        else if (!facingRight)
+        {
+            myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + knockback, myRigidbody.position.y));
+        }
+
+        invincible = true;
+        currentState = PlayerState.damaged;
+        anim.SetTrigger("hit");
+        yield return new WaitForSeconds(0.15f);
+        if (health == 0 && currentState != PlayerState.dead)
+        {
+            currentState = PlayerState.dead;
+            StartCoroutine(deadCo());
+        }
+        else
+        {
+            currentState = PlayerState.run;
+        }
+        yield return new WaitForSeconds(0.5f);
+        invincible = false;
+    }
+
+    protected override IEnumerator deadCo()
+    {
+        anim.SetBool("isDead", true);
+        yield return null;
+    }
+
     //This method changes the direction based on what key is being pressed
     //It also flips the character model
-    protected override void GetDirection()
+    void GetDirection()
     {
         direction = Vector2.zero;
 
@@ -219,13 +279,11 @@ public class Player : Character
             //flips character model
             if (direction.x > 0)
             {
-                transform.localScale = new Vector3(1, 1, 1);
                 facingRight = true;
             }
 
             else if (direction.x < 0)
             {
-                transform.localScale = new Vector3(-1, 1, 1);
                 facingRight = false;
             }
 
@@ -292,8 +350,16 @@ public class Player : Character
     }
     void setIsGrounded()
     {
-        isGrounded = transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;
-        
+        isGrounded = transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;   
+    }
+
+    protected override void takeDamage()
+    {
+        if (!invincible && currentState != PlayerState.dead)
+        {
+            health--;
+            StartCoroutine(hitCo());
+        }
     }
 
 }
