@@ -15,9 +15,12 @@ public class Enemy : Character
 {
     private bool isAttacking;
     private bool isPatrolling;
-    public float patrolDistance;
     public float patrolSpeed;
+    private float patrolTime;
+    public float patrolMaxTime;
     public float detectionLength;
+
+    private Transform target;
 
     private Animator anim;
     public GameObject enemy;
@@ -27,6 +30,8 @@ public class Enemy : Character
     // Start is called before the first frame update
     protected override void Start()
     {
+        target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        patrolTime = patrolMaxTime;
         health = 2;
         anim = GetComponent<Animator>();
         currentState = EnemyState.walk;
@@ -45,28 +50,66 @@ public class Enemy : Character
 
         isPatrolling = !getIsPatrolling();
         health = Mathf.Clamp(health, 0, 2);
+        
 
         if (currentState != EnemyState.dead)
         {
-            if (currentState == EnemyState.walk && !anim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+
+            if (isPatrolling && currentState == EnemyState.walk)
+            {
+                currentState = EnemyState.walk;
+
+                if (patrolTime > 0)
+                {
+                    patrolTime -= Time.deltaTime;
+                }
+                else
+                {
+                    patrolTime = patrolMaxTime;
+                    facingRight = !facingRight;
+                }
+            }
+            else if (!isPatrolling)
+            {
+                searchAttack();
+            }
+
+            if (currentState == EnemyState.walk)
+            {
+                anim.SetBool("isWalking", true);
+            }
+            else if (currentState != EnemyState.walk)
+            {
+                anim.SetBool("isWalking", false);
+            }
+
+            if (currentState == EnemyState.attack)
             {
                 StartCoroutine(attackCo());
             }
 
+        }
+
+        base.Update();
+    }
+
+    private void FixedUpdate()
+    {
+        Debug.Log(myRigidbody.velocity);
+        if (currentState != EnemyState.dead)
+        {
+
             if (isPatrolling)
             {
-                StartCoroutine(patrolCo());
+                patrol();
             }
 
         }
-
-        
-        base.Update();
     }
 
     private IEnumerator attackCo()
     {
-        isAttacking = false;
+        //isAttacking = false;
         currentState = EnemyState.attack;
         anim.SetTrigger("attack");
         yield return new WaitForSeconds(2.25f);
@@ -74,6 +117,7 @@ public class Enemy : Character
         {
             currentState = EnemyState.walk;
         }
+
     }
     protected override IEnumerator hitCo()
     {
@@ -119,12 +163,37 @@ public class Enemy : Character
         }
     }
 
-    private IEnumerator patrolCo()
+    void patrol()
     {
-        //transform.Translate(Vector2.)
-        yield return null;
+        if (patrolTime > 0)
+        {
+            currentState = EnemyState.walk;
+            if (facingRight)
+            {
+                myRigidbody.velocity = new Vector2(patrolSpeed, myRigidbody.velocity.y);
+            }
+
+            else if (!facingRight)
+            {
+                myRigidbody.velocity = new Vector2(-patrolSpeed, myRigidbody.velocity.y);
+            }
+        }
     }
 
+    void searchAttack()
+    {
+        Debug.Log(Mathf.Abs(Vector2.Distance(transform.position, target.position)));
+        if(Mathf.Abs(Vector2.Distance(transform.position, target.position)) > 1.6f)
+        {
+            currentState = EnemyState.walk;
+            transform.position = Vector2.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
+        }
+        else 
+        {
+            myRigidbody.velocity = new Vector2(0, 0);
+            currentState = EnemyState.attack;
+        }
+    }
     private bool getIsPatrolling()
     {
         RaycastHit2D hit;
