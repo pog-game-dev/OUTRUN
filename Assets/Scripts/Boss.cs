@@ -36,7 +36,7 @@ public class Boss : Character
         attackDelay = maxAttackDelay;
         isWalking = false;
         facingRight = false;
-        health = 20;
+        health = 15;
         isActive = false;
         isDead = false;
         anim = GetComponent<Animator>();
@@ -69,6 +69,11 @@ public class Boss : Character
                 anim.SetBool("isWalking", false);
             }
 
+
+            if (!isWalking)
+            {
+                myRigidbody.velocity = Vector2.zero;
+            }
         }
 
         base.Update();
@@ -182,7 +187,7 @@ public class Boss : Character
     private void attackTimer()
     {
 
-        if(attackDelay <= 0.0f || inMeleeRange)
+        if(attackDelay <= 0.0f)
         {
             invincible = true;
             isWalking = false;
@@ -203,12 +208,12 @@ public class Boss : Character
         {
             teleportCounter = 0;
             foo = UnityEngine.Random.Range(0.0f, 10.0f);
-            Debug.Log("chance calculated" + foo);
+            //Debug.Log("chance calculated" + foo);
 
         }
         if (foo < teleportChance && currentState != BossState.attack && target.transform.Find("Teleport").GetComponent<TeleportCheck>().canTeleport == true)
         {
-            Debug.Log("TELEPORT");
+            //Debug.Log("TELEPORT");
             isWalking = false;
             StartCoroutine(teleportCo());
         }
@@ -218,6 +223,7 @@ public class Boss : Character
     {
         isActive = true;
         isWalking = true;
+        target.transform.Find("Teleport").GetComponent<BoxCollider2D>().enabled = true;
     }
 
     public void damage()

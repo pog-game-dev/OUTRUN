@@ -43,8 +43,6 @@ public abstract class Character : MonoBehaviour
     //virtual method
     protected abstract IEnumerator hitCo();
     protected abstract IEnumerator deadCo();
-
-    
     private void OnTriggerEnter2D(Collider2D collision)
     {
         float direction = (myRigidbody.position.x - collision.transform.position.x) / Mathf.Abs(myRigidbody.position.x - collision.transform.position.x);
@@ -54,7 +52,6 @@ public abstract class Character : MonoBehaviour
             takeDamage();
         }
     }
-
 
     protected virtual void takeDamage()
     {

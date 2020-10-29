@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,9 +26,6 @@ public enum AttackState
 
 public class Player : Character
 {
-
-    [SerializeField] private LayerMask groundLayerMask;
-
     private PlayerState currentState;
     private AttackState currentAttack;
     
@@ -35,19 +33,24 @@ public class Player : Character
     private bool isGrounded;
     private bool invincible;
     private bool isDead;
+    private bool canDash;
 
     //stats
     public float dashForce;
 
     //components
     private Animator anim;
+    private BoxCollider2D collider;
+
+    public LayerMask groundLayer;
+    public LayerMask gunLayer;
 
     public int numOfClicks = 0;
     private float lastClickedTime = 0f;
-    private float maxComboDelay = 0.3f;
+    private float maxComboDelay = 0.5f;
 
     private float ammo;
-    [SerializeField] private float reloadTime;
+    public float reloadTime;
     private float reloadTimeCounter;
 
 
@@ -55,7 +58,10 @@ public class Player : Character
 
     protected override void Start()
     {
-        isDead = false;
+        knockback = 1;
+        canDash = true;
+        isDead = true;
+        isGrounded = true;
         facingRight = true;
         reloadTimeCounter = reloadTime;
         ammo = 3;
@@ -65,6 +71,9 @@ public class Player : Character
         currentAttack = AttackState.none;
         base.Start();
         anim = GetComponent<Animator>();
+        collider = GetComponent<BoxCollider2D>();
+        StartCoroutine(LoadCo());
+
     }
 
     //methods called every frame
@@ -75,9 +84,10 @@ public class Player : Character
         ammo = Mathf.Clamp(ammo, 0, 3);
 
         //Debug
-        Debug.Log("currentState: " + currentState);
+       // Debug.Log("currentState: " + currentState);
         //Debug.Log("health: " + health);
-        Debug.Log("numofclicks" + numOfClicks);
+        //Debug.Log("numofclicks" + numOfClicks);
+        //Debug.Log("isDead" + isDead);
 
         
         //Reload timer
@@ -94,7 +104,7 @@ public class Player : Character
             }
         }
 
-        if (currentState != PlayerState.dead && !isDead)
+        if (!isDead)
         {
             //movement
             attack();
@@ -104,7 +114,7 @@ public class Player : Character
             dash();
 
             //Debug
-            Debug.Log("isgrounded" + isGrounded);
+            //Debug.Log("isgrounded" + isGrounded);
 
             if (currentState == PlayerState.idle || currentState != PlayerState.run)
             {
@@ -134,9 +144,10 @@ public class Player : Character
         }
 
 
-        else if (currentState == PlayerState.dead)
+        else if (isDead)
         {
-            direction = Vector2.zero;
+            knockback = 0;
+            myRigidbody.velocity = Vector2.zero;
         }
 
         base.Update();
@@ -144,15 +155,17 @@ public class Player : Character
 
     private void FixedUpdate()
     {
-        Move();
+        if(!isDead && canMove())
+            Move();
     }
     //animation coroutines
     private IEnumerator Attack1Co()
     {
         currentAttack = AttackState.attack1;
         anim.SetTrigger("attack1");
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
         currentState = PlayerState.idle;
+        yield return new WaitForSeconds(0.25f);
     }
 
     private IEnumerator Attack2Co()
@@ -160,7 +173,7 @@ public class Player : Character
         currentAttack = AttackState.attack2;
         numOfClicks = 0;
         anim.SetTrigger("attack2");
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.5f);
         currentAttack = AttackState.none;
         currentState = PlayerState.idle;
     }
@@ -169,6 +182,35 @@ public class Player : Character
     {
         ammo--;
         anim.SetTrigger("shoot");
+
+        RaycastHit2D hit;
+        if (facingRight)
+        {
+            hit = Physics2D.Raycast(transform.Find("Gun").GetComponent<Transform>().position, Vector2.right, gunLayer);
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                hit.collider.GetComponent<Enemy>().damage();
+            }
+            else if (hit.collider.CompareTag("Boss"))
+            {
+                hit.collider.GetComponent<Boss>().damage();
+            }
+
+        }
+
+        else if (!facingRight)
+        {
+            hit = Physics2D.Raycast(transform.Find("Gun").GetComponent<Transform>().position, Vector2.left, gunLayer);
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                hit.collider.GetComponent<Enemy>().damage();
+            }
+            else if (hit.collider.CompareTag("Boss"))
+            {
+                hit.collider.GetComponent<Boss>().damage();
+            }
+        }
+
         yield return new WaitForSeconds(0.3f);
         currentState = PlayerState.idle;
     }
@@ -183,6 +225,8 @@ public class Player : Character
 
     private IEnumerator DashCo()
     {
+        invincible = true;
+        canDash = false;
         currentState = PlayerState.dash;
         if (facingRight)
         {
@@ -193,8 +237,11 @@ public class Player : Character
             myRigidbody.MovePosition(transform.position + Vector3.left * dashForce);
         }
         anim.SetTrigger("dash");
+        yield return new WaitForSeconds(0.25f);
+        invincible = false;
+        currentState = PlayerState.run;
         yield return new WaitForSeconds(0.5f);
-        currentState = PlayerState.fall;
+        canDash = true;
 
     }
 
@@ -205,7 +252,7 @@ public class Player : Character
         currentState = PlayerState.damaged;
         anim.SetTrigger("hit");
         yield return new WaitForSeconds(0.15f);
-        if (health == 0 && currentState != PlayerState.dead)
+        if (health <= 0 && currentState != PlayerState.dead)
         {
             currentState = PlayerState.dead;
             StartCoroutine(deadCo());
@@ -216,6 +263,7 @@ public class Player : Character
         }
         yield return new WaitForSeconds(0.5f);
         invincible = false;
+        isGrounded = true;
     }
 
     protected override IEnumerator deadCo()
@@ -223,6 +271,13 @@ public class Player : Character
         anim.SetBool("isDead", true);
         isDead = true;
         yield return null;
+    }
+
+    private IEnumerator LoadCo()
+    {
+        yield return new WaitForSeconds(3.0f);
+        GetComponent<SpriteRenderer>().enabled = true;
+        isDead = false;
     }
 
     void Move()
@@ -266,8 +321,9 @@ public class Player : Character
             currentAttack = AttackState.none;
         }
 
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && canAttack())
         {
+            myRigidbody.velocity = Vector2.zero;
             lastClickedTime = Time.time;
             if (currentAttack != AttackState.attack2)
             {
@@ -283,7 +339,7 @@ public class Player : Character
             {
                 StartCoroutine(Attack2Co());
             }
-            numOfClicks = Mathf.Clamp(numOfClicks, 0, 2);
+            
         }
 
 
@@ -291,29 +347,56 @@ public class Player : Character
 
     void shoot()
     {
-        if (Input.GetButtonDown("Fire2") && ammo > 0)
+        if (Input.GetButtonDown("Fire2") && ammo > 0 && canAttack())
         {
+            myRigidbody.velocity = Vector2.zero;
             StartCoroutine(ShootCo());
         }
     }
     void dash()
     {
-        if (Input.GetButtonDown("Dash"))
+        if (Input.GetButtonDown("Dash") && canDash)
         {
             StartCoroutine(DashCo());
         }
     }
     void setIsGrounded()
     {
-        isGrounded = transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;   
+        isGrounded = transform.Find("GroundCheck").GetComponent<GroundCheck>().isGrounded;  
+        
     }
 
     protected override void takeDamage()
     {
         if (!invincible && currentState != PlayerState.dead)
         {
+
             health--;
             StartCoroutine(hitCo());
+        }
+    }
+
+    private bool canMove()
+    {
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Attack1") || anim.GetCurrentAnimatorStateInfo(0).IsName("Attack2") || anim.GetCurrentAnimatorStateInfo(0).IsName("Shoot"))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    private bool canAttack()
+    {
+        if (isGrounded)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -329,5 +412,10 @@ public class Player : Character
     public bool getFacingRight()
     {
         return facingRight;
+    }
+
+    public void damage()
+    {
+        takeDamage();
     }
 }

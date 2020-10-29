@@ -12,8 +12,9 @@ public enum EnemyState
 }
 
 public class Enemy : Character
-{ 
-    private bool isPatrolling;
+{
+    private bool isWalking;
+    public bool isPatrolling;
     public float patrolSpeed;
     private float patrolTime;
     public float patrolMaxTime;
@@ -37,6 +38,7 @@ public class Enemy : Character
         anim = GetComponent<Animator>();
         currentState = EnemyState.walk;
         isPatrolling = true;
+        isWalking = true;
         base.Start();
 
     }
@@ -50,12 +52,9 @@ public class Enemy : Character
         Debug.Log(isPatrolling);
 
 
-        health = Mathf.Clamp(health, 0, 10);
-        
-
         if (!isDead && currentState != EnemyState.dead)
         {
-            isPatrolling = !getIsPatrolling();
+            //isPatrolling = !getIsPatrolling();
 
             if (isPatrolling && currentState == EnemyState.walk)
             {
@@ -99,7 +98,7 @@ public class Enemy : Character
         {
             currentState = EnemyState.walk;
         }
-
+        isWalking = true;
     }
     protected override IEnumerator hitCo()
     {
@@ -109,7 +108,7 @@ public class Enemy : Character
         anim.SetTrigger("hit");
         yield return new WaitForSeconds(0.25f);
 
-        if(health == 0 && currentState != EnemyState.dead)
+        if(health <= 0 && currentState != EnemyState.dead)
         {
             isDead = true; ;
             currentState = EnemyState.dead;
@@ -170,24 +169,25 @@ public class Enemy : Character
             {
                 currentState = EnemyState.walk;
                 //transform.position = Vector2.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
-                if (facingRight) 
+                if (facingRight && isWalking) 
                 { 
                     myRigidbody.velocity = new Vector2(patrolSpeed, myRigidbody.velocity.y); 
                 }
-                else if (!facingRight)
+                else if (!facingRight && isWalking)
                 {
                     myRigidbody.velocity = new Vector2(-patrolSpeed, myRigidbody.velocity.y);
                 }
             }
             else
             {
+                isWalking = false;
                 myRigidbody.velocity = new Vector2(0, 0);
                 StartCoroutine(attackCo());
             }
         }
     }
 
-    
+    /*
     private bool getIsPatrolling()
     {
         
@@ -202,9 +202,8 @@ public class Enemy : Character
         }
         return hit.collider != null && hit.collider.CompareTag("Player");
         
-
-
     }
+    */
     
 
 }

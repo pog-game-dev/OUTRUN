@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDetector : MonoBehaviour
+public class PlayerDetectorEnemy : MonoBehaviour
 {
-    public Boss boss;
+    public Enemy enemy;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            boss.inMeleeRange = true;
+            enemy.isPatrolling = false;
         }
 
     }
@@ -17,7 +17,7 @@ public class PlayerDetector : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            boss.inMeleeRange = false;
+            enemy.isPatrolling = true;
 
         }
     }

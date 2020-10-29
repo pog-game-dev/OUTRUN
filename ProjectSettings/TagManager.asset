@@ -6,9 +6,9 @@ TagManager:
   tags:
   - Ground
   - Attack
-  - Vision
   - Enemy
-  - Teleport
+  - Empty
+  - Boss
   layers:
   - Default
   - TransparentFX
@@ -23,10 +23,10 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
+  - Hitbox
+  - Hurtbox
+  - Detection
+  - Gun
   - 
   - 
   - 

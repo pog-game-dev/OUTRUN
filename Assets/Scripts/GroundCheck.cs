@@ -6,9 +6,12 @@ public class GroundCheck : MonoBehaviour
 {
 
     public bool isGrounded;
+  
     private void OnTriggerStay2D(Collider2D collision)
     {
-        isGrounded = collision.CompareTag("Ground") || collision.CompareTag("Enemy");
+        //Debug.Log(collision);
+
+        isGrounded = collision.CompareTag("Ground") || collision.CompareTag("Enemy") || collision.CompareTag("Boss");
     }
 
     private void OnTriggerExit2D(Collider2D collision)
