@@ -1,0 +1,392 @@
+fileFormatVersion: 2
+guid: b571e1226b6dd264f8656be412d29783
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 245898575095483706
+    second: skeletonLASER_0
+  - first:
+      213: -9050231928798835121
+    second: skeletonLASER_1
+  - first:
+      213: 813121425190362906
+    second: skeletonLASER_2
+  - first:
+      213: 7992482803033694718
+    second: skeletonLASER_3
+  - first:
+      213: -8641537440814736707
+    second: skeletonLASER_4
+  - first:
+      213: -4402161437816554841
+    second: skeletonLASER_5
+  - first:
+      213: -352774577418018517
+    second: skeletonLASER_6
+  - first:
+      213: 9007740404273522699
+    second: skeletonLASER_7
+  - first:
+      213: -165457462941275895
+    second: skeletonLASER_8
+  - first:
+      213: 6493527690898624790
+    second: skeletonLASER_0
+  - first:
+      213: -6761283728268508800
+    second: skeletonLASER_1
+  - first:
+      213: -5674302321809593173
+    second: skeletonLASER_2
+  - first:
+      213: 4779359566942322010
+    second: skeletonLASER_3
+  - first:
+      213: -38306676493194308
+    second: skeletonLASER_4
+  - first:
+      213: 1792468596731174978
+    second: skeletonLASER_5
+  - first:
+      213: 3610079164468069441
+    second: skeletonLASER_6
+  - first:
+      213: -6249225829655766951
+    second: skeletonLASER_7
+  - first:
+      213: 7733453367926752164
+    second: skeletonLASER_8
+  - first:
+      213: -7689410726798723765
+    second: skeletonLASER_9
+  - first:
+      213: -8412892196344777059
+    second: skeletonLASER_10
+  - first:
+      213: 5466569005059323003
+    second: skeletonLASER_11
+  - first:
+      213: -5362815589585934455
+    second: skeletonLASER_12
+  - first:
+      213: -2285021525104524126
+    second: skeletonLASER_13
+  - first:
+      213: 2505296448853569036
+    second: skeletonLASER_14
+  - first:
+      213: -291482157114200824
+    second: skeletonLASER_15
+  - first:
+      213: -1942327686192842804
+    second: skeletonLASER_16
+  - first:
+      213: -7148820488917657485
+    second: skeletonLASER_17
+  - first:
+      213: 1502836865325763681
+    second: skeletonLASER_18
+  - first:
+      213: 190728314395265735
+    second: skeletonLASER_19
+  - first:
+      213: -228545991647957738
+    second: skeletonLASER_20
+  - first:
+      213: 3324474866076975803
+    second: skeletonLASER_21
+  - first:
+      213: -1309536683229764065
+    second: skeletonLASER_22
+  - first:
+      213: 1372831120960510149
+    second: skeletonLASER_23
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: -1
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 12
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: skeletonLASER_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 288
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 611dc2bd705ad1a50800000000000000
+      internalID: 6493527690898624790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_1
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 288
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0814dee95481b22a0800000000000000
+      internalID: -6761283728268508800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_2
+      rect:
+        serializedVersion: 2
+        x: 2000
+        y: 288
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bac6d502a14d041b0800000000000000
+      internalID: -5674302321809593173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 144
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5d36793432b35240800000000000000
+      internalID: 4779359566942322010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_4
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 144
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cbbe81bd748e77ff0800000000000000
+      internalID: -38306676493194308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_5
+      rect:
+        serializedVersion: 2
+        x: 2000
+        y: 144
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 240643b11b020e810800000000000000
+      internalID: 1792468596731174978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 14488218fd3991230800000000000000
+      internalID: 3610079164468069441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_7
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 0
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9581c2eb73a4649a0800000000000000
+      internalID: -6249225829655766951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: skeletonLASER_8
+      rect:
+        serializedVersion: 2
+        x: 2000
+        y: 0
+        width: 1000
+        height: 144
+      alignment: 9
+      pivot: {x: 0.06385669, y: 0.4446458}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4a382525ddeb25b60800000000000000
+      internalID: 7733453367926752164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

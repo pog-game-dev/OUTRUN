@@ -5,11 +5,10 @@ using UnityEngine;
 public class GroundCheck : MonoBehaviour
 {
 
-    [SerializeField] private LayerMask platformLayerMask;
     public bool isGrounded;
     private void OnTriggerStay2D(Collider2D collision)
     {
-        isGrounded = collision != null && platformLayerMask != 0;
+        isGrounded = collision.CompareTag("Ground") || collision.CompareTag("Enemy");
     }
 
     private void OnTriggerExit2D(Collider2D collision)

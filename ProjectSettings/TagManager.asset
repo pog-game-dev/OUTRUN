@@ -8,6 +8,7 @@ TagManager:
   - Attack
   - Vision
   - Enemy
+  - Teleport
   layers:
   - Default
   - TransparentFX

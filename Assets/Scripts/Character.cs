@@ -11,7 +11,6 @@ public abstract class Character : MonoBehaviour
     protected Rigidbody2D myRigidbody;
 
     //variables for movement
-    public float gravityScale;
     public float jumpForce;
     public float speed;
     public float knockback;

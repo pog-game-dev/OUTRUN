@@ -46,7 +46,7 @@ public class Enemy : Character
     {
         //Debug
         //Debug.Log("health: " + health);
-        Debug.Log("currentState: " + currentState);
+        //Debug.Log("currentState: " + currentState);
         Debug.Log(isPatrolling);
 
 
@@ -166,11 +166,18 @@ public class Enemy : Character
         if (currentState != EnemyState.dead)
         {
 
-            if (Mathf.Abs(Vector2.Distance(transform.position, target.position)) > 1.6f)
+            if (Mathf.Abs(Vector2.Distance(transform.position, target.position)) > 2.0f)
             {
                 currentState = EnemyState.walk;
                 //transform.position = Vector2.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
-                myRigidbody.velocity = new Vector2(patrolSpeed, myRigidbody.velocity.y);
+                if (facingRight) 
+                { 
+                    myRigidbody.velocity = new Vector2(patrolSpeed, myRigidbody.velocity.y); 
+                }
+                else if (!facingRight)
+                {
+                    myRigidbody.velocity = new Vector2(-patrolSpeed, myRigidbody.velocity.y);
+                }
             }
             else
             {
