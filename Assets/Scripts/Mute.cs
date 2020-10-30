@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Mute : MonoBehaviour
 {
-    
+    public AudioSource mute;
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.M))
         {
-            GetComponent<AudioSource>().mute = !GetComponent<AudioSource>().mute;
+           mute.mute = !mute.mute;
         }
     }
 }

@@ -18,11 +18,14 @@ public class Boss : Character
     public GameObject boss;
     public Player target;
 
-    private bool isDead;
-    private bool isActive;
+    public GameController controller;
+
+    public bool isDead;
+    public bool isActive;
     public bool inMeleeRange;
     private bool isWalking;
     private bool invincible;
+    private bool isAttacking;
 
     public float minAttackDelay;
     public float maxAttackDelay;
@@ -72,7 +75,7 @@ public class Boss : Character
 
             if (!isWalking)
             {
-                myRigidbody.velocity = Vector2.zero;
+                myRigidbody.velocity = new Vector2(0, myRigidbody.velocity.y);
             }
         }
 
@@ -83,20 +86,28 @@ public class Boss : Character
 
     private IEnumerator attackCo()
     {
+        isAttacking = true;
         isWalking = false;
         currentState = BossState.attack;
         if (inMeleeRange)
         {
+            swingSound.Play();
             int attack = UnityEngine.Random.Range(1, 3);
             anim.SetTrigger("attack" + attack);
         }
-        else if (!inMeleeRange)
+        else if (!inMeleeRange && !anim.GetCurrentAnimatorStateInfo(0).IsName("Laser"))
         {
             anim.SetTrigger("attack3");
+            yield return new WaitForSeconds(0.6f);
+            if (anim.GetCurrentAnimatorStateInfo(0).IsName("Laser"))
+            {
+                shootSound.Play();
+            }
         }
         yield return new WaitForSeconds(1.0f);
+        isAttacking = false;
         invincible = false;
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.5f);
         if (currentState != BossState.dead)
         {
             currentState = BossState.walk;
@@ -108,10 +119,12 @@ public class Boss : Character
     protected override IEnumerator hitCo()
     {
         isWalking = false;
-        Debug.Log("hit");
         invincible = true;
         anim.SetTrigger("hit");
         yield return new WaitForSeconds(0.15f);
+        damagedSound.Play();
+        invincible = false;
+
 
         if (health <= 0 && currentState != BossState.dead)
         {
@@ -123,8 +136,7 @@ public class Boss : Character
         {
             currentState = BossState.walk;
         }
-        yield return new WaitForSeconds(0.5f);
-        invincible = false;
+        yield return new WaitForSeconds(0.3f);
         isWalking = true;
     }
 
@@ -186,17 +198,33 @@ public class Boss : Character
 
     private void attackTimer()
     {
-
-        if(attackDelay <= 0.0f)
+        if (controller.getGameState() == GameState.genocide)
         {
-            invincible = true;
-            isWalking = false;
-            StartCoroutine(attackCo());
-            attackDelay = UnityEngine.Random.Range(minAttackDelay, maxAttackDelay);
+            if (attackDelay <= 0.0f || inMeleeRange)
+            {
+                invincible = true;
+                isWalking = false;
+                StartCoroutine(attackCo());
+                attackDelay = UnityEngine.Random.Range(minAttackDelay, maxAttackDelay);
+            }
+            else
+            {
+                attackDelay -= Time.deltaTime;
+            }
         }
         else
         {
-            attackDelay -= Time.deltaTime;
+            if (attackDelay <= 0.0f)
+            {
+                invincible = true;
+                isWalking = false;
+                StartCoroutine(attackCo());
+                attackDelay = UnityEngine.Random.Range(minAttackDelay, maxAttackDelay);
+            }
+            else
+            {
+                attackDelay -= Time.deltaTime;
+            }
         }
     }
 
@@ -211,7 +239,7 @@ public class Boss : Character
             //Debug.Log("chance calculated" + foo);
 
         }
-        if (foo < teleportChance && currentState != BossState.attack && target.transform.Find("Teleport").GetComponent<TeleportCheck>().canTeleport == true)
+        if (foo < teleportChance && currentState != BossState.attack && target.transform.Find("Teleport").GetComponent<TeleportCheck>().canTeleport == true && !isAttacking)
         {
             //Debug.Log("TELEPORT");
             isWalking = false;

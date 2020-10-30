@@ -13,6 +13,8 @@ public enum EnemyState
 
 public class Enemy : Character
 {
+    public GameController gameController;
+
     private bool isWalking;
     public bool isPatrolling;
     public float patrolSpeed;
@@ -49,7 +51,7 @@ public class Enemy : Character
         //Debug
         //Debug.Log("health: " + health);
         //Debug.Log("currentState: " + currentState);
-        Debug.Log(isPatrolling);
+        //Debug.Log(isPatrolling);
 
 
         if (!isDead && currentState != EnemyState.dead)
@@ -85,6 +87,11 @@ public class Enemy : Character
             }
 
         }
+        else if (isDead)
+        {
+            StartCoroutine(deadCo());
+            transform.Find("Vision").GetComponent<BoxCollider2D>().enabled = false;
+        }
 
         base.Update();
     }
@@ -106,11 +113,14 @@ public class Enemy : Character
 
         currentState = EnemyState.damaged;
         anim.SetTrigger("hit");
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.1f);
+        damagedSound.Play();
+        yield return new WaitForSeconds(0.15f);
 
         if(health <= 0 && currentState != EnemyState.dead)
         {
-            isDead = true; ;
+            isDead = true;
+            gameController.deadEnemyUp();
             currentState = EnemyState.dead;
             StartCoroutine(deadCo());
         }
@@ -122,6 +132,7 @@ public class Enemy : Character
     
     protected override IEnumerator deadCo()
     {
+        
         currentState = EnemyState.dead;
         transform.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         anim.SetBool("isDead", true);

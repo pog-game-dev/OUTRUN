@@ -5,7 +5,7 @@ using UnityEngine;
 public class MenuScript : MonoBehaviour
 {
     public GameObject menu;
-    private bool paused;
+    public bool paused;
     // Start is called before the first frame update
     private void Start()
     {
@@ -15,6 +15,7 @@ public class MenuScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if (Input.GetButtonDown("Cancel"))
         {
             paused = !paused;

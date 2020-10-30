@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 
 public enum PlayerState
 {
@@ -34,6 +35,8 @@ public class Player : Character
     private bool invincible;
     private bool isDead;
     private bool canDash;
+    private bool canAttack;
+    private bool isLoading;
 
     //stats
     public float dashForce;
@@ -47,20 +50,24 @@ public class Player : Character
 
     public int numOfClicks = 0;
     private float lastClickedTime = 0f;
-    private float maxComboDelay = 0.5f;
+    private float maxComboDelay = 0.75f;
 
     private float ammo;
     public float reloadTime;
     private float reloadTimeCounter;
+
+    
 
 
     // Start is called before the first frame update
 
     protected override void Start()
     {
+        isLoading = true;
+        canAttack = true;
         knockback = 1;
         canDash = true;
-        isDead = true;
+        isDead = false;
         isGrounded = true;
         facingRight = true;
         reloadTimeCounter = reloadTime;
@@ -84,7 +91,7 @@ public class Player : Character
         ammo = Mathf.Clamp(ammo, 0, 3);
 
         //Debug
-       // Debug.Log("currentState: " + currentState);
+        //Debug.Log("currentState: " + currentState);
         //Debug.Log("health: " + health);
         //Debug.Log("numofclicks" + numOfClicks);
         //Debug.Log("isDead" + isDead);
@@ -155,25 +162,31 @@ public class Player : Character
 
     private void FixedUpdate()
     {
-        if(!isDead && canMove())
+        if(!isDead && canMove() && !isLoading)
             Move();
     }
     //animation coroutines
     private IEnumerator Attack1Co()
     {
+        canAttack = false;
         currentAttack = AttackState.attack1;
         anim.SetTrigger("attack1");
+        swingSound.Play();
         yield return new WaitForSeconds(0.1f);
         currentState = PlayerState.idle;
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.2f);
+        canAttack = true;
     }
 
     private IEnumerator Attack2Co()
     {
+        canAttack = false;
         currentAttack = AttackState.attack2;
         numOfClicks = 0;
         anim.SetTrigger("attack2");
-        yield return new WaitForSeconds(0.5f);
+        swingSound.Play();
+        yield return new WaitForSeconds(0.3f);
+        canAttack = true;
         currentAttack = AttackState.none;
         currentState = PlayerState.idle;
     }
@@ -182,11 +195,15 @@ public class Player : Character
     {
         ammo--;
         anim.SetTrigger("shoot");
+        shootSound.Play();
 
         RaycastHit2D hit;
+
         if (facingRight)
         {
             hit = Physics2D.Raycast(transform.Find("Gun").GetComponent<Transform>().position, Vector2.right, gunLayer);
+            Debug.Log(hit.collider);
+
             if (hit.collider.CompareTag("Enemy"))
             {
                 hit.collider.GetComponent<Enemy>().damage();
@@ -201,6 +218,8 @@ public class Player : Character
         else if (!facingRight)
         {
             hit = Physics2D.Raycast(transform.Find("Gun").GetComponent<Transform>().position, Vector2.left, gunLayer);
+            Debug.Log(hit.collider);
+
             if (hit.collider.CompareTag("Enemy"))
             {
                 hit.collider.GetComponent<Enemy>().damage();
@@ -225,20 +244,21 @@ public class Player : Character
 
     private IEnumerator DashCo()
     {
-        invincible = true;
         canDash = false;
         currentState = PlayerState.dash;
         if (facingRight)
         {
-            myRigidbody.MovePosition(transform.position + Vector3.right * dashForce);
+            //myRigidbody.MovePosition(transform.position + Vector3.right * dashForce);
+            myRigidbody.MovePosition(new Vector2(transform.position.x + dashForce, transform.position.y));
         }
         else
         {
-            myRigidbody.MovePosition(transform.position + Vector3.left * dashForce);
+            //myRigidbody.MovePosition(transform.position + Vector3.left * dashForce);
+            myRigidbody.MovePosition(new Vector2(transform.position.x - dashForce, transform.position.y));
         }
         anim.SetTrigger("dash");
+        swingSound.Play();
         yield return new WaitForSeconds(0.25f);
-        invincible = false;
         currentState = PlayerState.run;
         yield return new WaitForSeconds(0.5f);
         canDash = true;
@@ -247,11 +267,12 @@ public class Player : Character
 
     protected override IEnumerator hitCo()
     {
-
         invincible = true;
         currentState = PlayerState.damaged;
         anim.SetTrigger("hit");
-        yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSeconds(0.1f);
+        damagedSound.Play(); 
+        yield return new WaitForSeconds(0.05f);
         if (health <= 0 && currentState != PlayerState.dead)
         {
             currentState = PlayerState.dead;
@@ -277,7 +298,7 @@ public class Player : Character
     {
         yield return new WaitForSeconds(3.0f);
         GetComponent<SpriteRenderer>().enabled = true;
-        isDead = false;
+        isLoading = false;
     }
 
     void Move()
@@ -321,7 +342,7 @@ public class Player : Character
             currentAttack = AttackState.none;
         }
 
-        if (Input.GetButtonDown("Fire1") && canAttack())
+        if (Input.GetButtonDown("Fire1") && isGrounded && canAttack)
         {
             myRigidbody.velocity = Vector2.zero;
             lastClickedTime = Time.time;
@@ -347,7 +368,7 @@ public class Player : Character
 
     void shoot()
     {
-        if (Input.GetButtonDown("Fire2") && ammo > 0 && canAttack())
+        if (Input.GetButtonDown("Fire2") && ammo > 0 && isGrounded)
         {
             myRigidbody.velocity = Vector2.zero;
             StartCoroutine(ShootCo());
@@ -388,18 +409,6 @@ public class Player : Character
         }
     }
 
-    private bool canAttack()
-    {
-        if (isGrounded)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     public float getHealth()
     {
         return health;
@@ -417,5 +426,9 @@ public class Player : Character
     public void damage()
     {
         takeDamage();
+    }
+    public bool getIsDead()
+    {
+        return isDead;
     }
 }

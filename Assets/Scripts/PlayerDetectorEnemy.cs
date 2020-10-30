@@ -5,6 +5,11 @@ using UnityEngine;
 public class PlayerDetectorEnemy : MonoBehaviour
 {
     public Enemy enemy;
+
+    private void Start()
+    {
+        enemy = GetComponent<Enemy>();
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))

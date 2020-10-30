@@ -17,8 +17,13 @@ public abstract class Character : MonoBehaviour
     protected Vector2 direction;
     protected bool facingRight;
 
+    //Audio Cues
+    public AudioSource swingSound;
+    public AudioSource damagedSound;
+    public AudioSource shootSound;
+
     //variables for character stats
-    protected int health;
+    public int health;
 
     // Start is called before the first frame update
     protected virtual void Start()
