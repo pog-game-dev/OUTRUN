@@ -194,7 +194,8 @@ public class Enemy : Character
             {
                 isWalking = false;
                 myRigidbody.velocity = new Vector2(0, 0);
-                StartCoroutine(attackCo());
+                if(!anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
+                    StartCoroutine(attackCo());
             }
         }
     }
