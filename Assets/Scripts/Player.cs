@@ -111,7 +111,7 @@ public class Player : Character
             }
         }
 
-        if (!isDead)
+        if (!isDead && !isLoading)
         {
             //movement
             attack();

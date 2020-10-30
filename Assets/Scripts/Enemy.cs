@@ -109,6 +109,7 @@ public class Enemy : Character
     }
     protected override IEnumerator hitCo()
     {
+        StopCoroutine(attackCo());
         Debug.Log("hit");
 
         currentState = EnemyState.damaged;
@@ -132,7 +133,7 @@ public class Enemy : Character
     
     protected override IEnumerator deadCo()
     {
-        
+        StopCoroutine(attackCo());
         currentState = EnemyState.dead;
         transform.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         anim.SetBool("isDead", true);
