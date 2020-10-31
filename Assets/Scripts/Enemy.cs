@@ -135,7 +135,7 @@ public class Enemy : Character
     {
         StopCoroutine(attackCo());
         currentState = EnemyState.dead;
-        transform.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+        myRigidbody.bodyType = RigidbodyType2D.Static;
         anim.SetBool("isDead", true);
         enemy.GetComponent<BoxCollider2D>().enabled = false;
         yield return null;

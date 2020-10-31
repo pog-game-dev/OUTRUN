@@ -8,7 +8,7 @@ public abstract class Character : MonoBehaviour
 {
 
     //pre initaliziation
-    protected Rigidbody2D myRigidbody;
+    public Rigidbody2D myRigidbody;
 
     //variables for movement
     public float jumpForce;

@@ -19,6 +19,8 @@ public class Boss : Character
     public Player target;
 
     public GameController controller;
+    public MusicController musicController;
+    public AudioSource deflect;
 
     public bool isDead;
     public bool isActive;
@@ -26,6 +28,8 @@ public class Boss : Character
     private bool isWalking;
     private bool invincible;
     private bool isAttacking;
+
+    private bool hitCoRunning = false;
 
     public float minAttackDelay;
     public float maxAttackDelay;
@@ -36,6 +40,7 @@ public class Boss : Character
     // Start is called before the first frame update
     protected override void Start()
     {
+        transform.Find("DeathBox").GetComponent<BoxCollider2D>().enabled = false;
         attackDelay = maxAttackDelay;
         isWalking = false;
         facingRight = false;
@@ -55,6 +60,7 @@ public class Boss : Character
         //Debug.Log("dead " + isDead);
         if (!isDead && isActive)
         {
+            myRigidbody.bodyType = RigidbodyType2D.Dynamic;
             bossBehaviour();
             
 
@@ -78,6 +84,20 @@ public class Boss : Character
                 myRigidbody.velocity = new Vector2(0, myRigidbody.velocity.y);
             }
         }
+        else
+        {
+            transform.Find("DeathBox").GetComponent<BoxCollider2D>().enabled = true;
+            myRigidbody.bodyType = RigidbodyType2D.Static;
+        }
+
+        if(hitCoRunning || isAttacking)
+        {
+            invincible = true;
+        }
+        else
+        {
+            invincible = false;
+        }
 
         base.Update();
     }
@@ -86,27 +106,31 @@ public class Boss : Character
 
     private IEnumerator attackCo()
     {
+        StopCoroutine(attackCo());
         isAttacking = true;
         isWalking = false;
         currentState = BossState.attack;
-        if (inMeleeRange)
+        if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
         {
-            swingSound.Play();
-            int attack = UnityEngine.Random.Range(1, 3);
-            anim.SetTrigger("attack" + attack);
-        }
-        else if (!inMeleeRange && !anim.GetCurrentAnimatorStateInfo(0).IsName("Laser"))
-        {
-            anim.SetTrigger("attack3");
-            yield return new WaitForSeconds(0.6f);
-            if (anim.GetCurrentAnimatorStateInfo(0).IsName("Laser"))
+            if (inMeleeRange)
             {
-                shootSound.Play();
+                swingSound.Play();
+                int attack = UnityEngine.Random.Range(1, 3);
+                anim.SetTrigger("attack" + attack);
+                invincible = false;
+            }
+            else if (!inMeleeRange && !anim.GetCurrentAnimatorStateInfo(0).IsName("Laser"))
+            {
+                anim.SetTrigger("attack3");
+                yield return new WaitForSeconds(0.6f);
+                if (anim.GetCurrentAnimatorStateInfo(0).IsName("Laser"))
+                {
+                    shootSound.Play();
+                }
             }
         }
         yield return new WaitForSeconds(1.0f);
         isAttacking = false;
-        invincible = false;
         yield return new WaitForSeconds(0.5f);
         if (currentState != BossState.dead)
         {
@@ -118,12 +142,15 @@ public class Boss : Character
 
     protected override IEnumerator hitCo()
     {
-        isWalking = false;
+        StopCoroutine(hitCo());
         invincible = true;
+        hitCoRunning = true;
+        isWalking = false;
         anim.SetTrigger("hit");
         yield return new WaitForSeconds(0.15f);
-        damagedSound.Play();
         invincible = false;
+        damagedSound.Play();
+        hitCoRunning = false;
 
 
         if (health <= 0 && currentState != BossState.dead)
@@ -138,6 +165,7 @@ public class Boss : Character
         }
         yield return new WaitForSeconds(0.3f);
         isWalking = true;
+        
     }
 
     private IEnumerator teleportCo()
@@ -162,14 +190,20 @@ public class Boss : Character
         transform.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
         boss.GetComponent<BoxCollider2D>().enabled = false;
         yield return new WaitForSeconds(0.6f);
+        controller.activatePlayEnd();
     }
 
     protected override void takeDamage()
     {
         if (!invincible && currentState != BossState.dead)
         {
+            musicController.switchMusic();
             isActive = true;
             base.takeDamage();
+        }
+        else if (invincible && !hitCoRunning )
+        {
+            deflect.Play();
         }
     }
 
@@ -202,7 +236,6 @@ public class Boss : Character
         {
             if (attackDelay <= 0.0f || inMeleeRange)
             {
-                invincible = true;
                 isWalking = false;
                 StartCoroutine(attackCo());
                 attackDelay = UnityEngine.Random.Range(minAttackDelay, maxAttackDelay);

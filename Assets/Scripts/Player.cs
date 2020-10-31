@@ -36,7 +36,7 @@ public class Player : Character
     private bool isDead;
     private bool canDash;
     private bool canAttack;
-    private bool isLoading;
+    public bool isLoading;
 
     //stats
     public float dashForce;
@@ -113,6 +113,8 @@ public class Player : Character
 
         if (!isDead && !isLoading)
         {
+            myRigidbody.bodyType = RigidbodyType2D.Dynamic;
+
             //movement
             attack();
             jump();
@@ -151,10 +153,11 @@ public class Player : Character
         }
 
 
-        else if (isDead)
+        else if (isDead || isLoading)
         {
             knockback = 0;
-            myRigidbody.velocity = Vector2.zero;
+            anim.SetBool("isRunning", false);
+            myRigidbody.bodyType = RigidbodyType2D.Static;
         }
 
         base.Update();
@@ -174,7 +177,7 @@ public class Player : Character
         swingSound.Play();
         yield return new WaitForSeconds(0.1f);
         currentState = PlayerState.idle;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         canAttack = true;
     }
 
@@ -185,7 +188,7 @@ public class Player : Character
         numOfClicks = 0;
         anim.SetTrigger("attack2");
         swingSound.Play();
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.2f);
         canAttack = true;
         currentAttack = AttackState.none;
         currentState = PlayerState.idle;
@@ -323,7 +326,6 @@ public class Player : Character
             {
                 currentState = PlayerState.idle;
             }
-        
     }
 
     void jump()
@@ -430,5 +432,11 @@ public class Player : Character
     public bool getIsDead()
     {
         return isDead;
+    }
+
+    public void kill()
+    {
+        StartCoroutine(hitCo());
+        StartCoroutine(deadCo());
     }
 }
